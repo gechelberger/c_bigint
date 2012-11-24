@@ -1,6 +1,6 @@
 
 CC = gcc
-CFLAGS = -fPIC -shared -w
+CFLAGS = -fPIC -shared -pedantic
 
 LIBFLAGS = -fPIC -shared
 

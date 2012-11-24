@@ -17,7 +17,7 @@ bigint* alloc_bigint(uint64_t digits) {
  * a number of digits given a particular base
  */
 bigint* alloc_bigint_base(uint64_t digits, byte base) {
-  static float l2 = log(2);
+  static const float l2 = log(2);
   float ratio = log(base) / l2; 
   bigint* value = malloc(sizeof(bigint));
   value->length = (uint64_t) ceil(ratio * digits / (sizeof(uint64_t)*8));
@@ -338,7 +338,7 @@ bigint* mul_bigint_nat(bigint* dest, uint64_t scale) {
 
 bigint* mul_bigint(bigint* dest, bigint* scale) {
   size_t scratch_size = sizeof(uint64_t) * dest->length;
-  uint64_t scratch = malloc(scratch_size);
+  uint64_t* scratch = malloc(scratch_size);
   memset(scratch, 0, scratch_size);
 
   int i, j=0;
