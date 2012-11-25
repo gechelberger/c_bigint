@@ -31,6 +31,7 @@ uint64_t* add_segments(uint64_t* dest, uint64_t* incr, uint64_t length);
 uint64_t* sub_segments(uint64_t* dest, uint64_t* decr, uint64_t length);
 uint64_t* mul_segments(uint64_t* dest, uint64_t* scale, uint64_t length);
 uint64_t* div_segments(uint64_t* dest, uint64_t* divisor, uint64_t length);
+uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length);
 //TODO: perhaps have div_segments return mod instead of returning dest?
 
 

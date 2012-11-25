@@ -188,6 +188,16 @@ uint64_t* div_segments(uint64_t* dest, uint64_t *divisor, uint64_t length) {
    */  
 }
 
+uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length) {
+
+  //scratch for divisor
+  //scratch for mod
+
+  //put mod in seg2
+
+  return NULL;
+}
+
 bool gt(uint64_t* seg1, uint64_t* seg2, uint64_t length) {
   return _gt(seg1, seg2, length, FALSE);
 }
