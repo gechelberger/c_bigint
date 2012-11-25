@@ -224,6 +224,13 @@ bool _lt(uint64_t* seg1, uint64_t* seg2, uint64_t length, bool or_equal) {
   return or_equal;
 }
 
+bool eq(uint64_t* seg1, uint64_t* seg2, uint64_t length) {
+  int i;
+  for(i = 0; i < length; i++) {
+    if(seg1[i] != seg2[i]) return false;
+  }
+  return true;
+}
 
 uint64_t _msb(uint64_t* segments, uint64_t length) {
   int i = length - 1;

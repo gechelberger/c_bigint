@@ -33,8 +33,8 @@ uint64_t* mul_segments(uint64_t* dest, uint64_t* scale, uint64_t length);
 uint64_t* div_segments(uint64_t* dest, uint64_t* divisor, uint64_t length);
 //TODO: perhaps have div_segments return mod instead of returning dest?
 
-//TODO:
-//bool eq(uint64_t* seg1, uint64_t* seg2, uint64_t length);
+
+bool eq(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 
 bool gt(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 bool gte(uint64_t* seg1, uint64_t* seg2, uint64_t length);
