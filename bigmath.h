@@ -20,12 +20,21 @@ bigint* alloc_bigint(uint64_t digits);
 bigint* alloc_bigint_base(uint64_t digits, byte base);
 void free_bigint(bigint* bigint);
 
+
+//TODO:
+//uint64_t* not_segments(uint64_t* dest, uint64_t length);
+//xor_segments?
+
 uint64_t* shl_segments(uint64_t* dest, uint64_t length, byte offset);
 uint64_t* shr_segments(uint64_t* dest, uint64_t length, byte offset);
 uint64_t* add_segments(uint64_t* dest, uint64_t* incr, uint64_t length);
 uint64_t* sub_segments(uint64_t* dest, uint64_t* decr, uint64_t length);
 uint64_t* mul_segments(uint64_t* dest, uint64_t* scale, uint64_t length);
 uint64_t* div_segments(uint64_t* dest, uint64_t* divisor, uint64_t length);
+//TODO: perhaps have div_segments return mod instead of returning dest?
+
+//TODO:
+//bool eq(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 
 bool gt(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 bool gte(uint64_t* seg1, uint64_t* seg2, uint64_t length);
