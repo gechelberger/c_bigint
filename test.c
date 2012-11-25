@@ -9,20 +9,6 @@ bool test_add_segments(void);
 bool test_sub_segments(void);
 
 /*
-//TODO:
-bool test_mul_segments(void);
-bool test_div_segments(void);
-
-bool test_gt(void);
-bool test_gte(void);
-bool test_lt(void);
-bool test_lte(void);
-
-bool test_msb(void);
-bool test_log2(void);
-
-//
-
 bool test_shl(void);
 bool test_shr(void);
 bool test_add(void);
@@ -31,9 +17,23 @@ bool test_mul(void);
 bool test_mult_nat(void);
 bool test_div(void);
 bool test_div_nat(void);
+*/
+
+
+//TODO:
+bool test_mul_segments(void);
+bool test_div_segments(void);
+
+bool test_gt(void);
+bool test_gte(void);
+bool test_lt(void);
+bool test_lte(void);
+bool test_eq(void);
+
+bool test_msb(void);
+bool test_log2(void);
 
 //END TODO
-*/
 
 
 bigint* get_ones(uint64_t size);
@@ -48,6 +48,16 @@ int main() {
   run_test(&test_shl_segments, "shl_segments");
   run_test(&test_add_segments, "add_segments");
   run_test(&test_sub_segments, "sub_segments");
+  run_test(&test_msb, "most significant bit");
+  run_test(&test_log2, "integer log2 of uint64_t");
+  run_test(&test_gt, "greater than");
+  run_test(&test_gte, "greater or equal");
+  run_test(&test_lt, "less than");
+  run_test(&test_lte, "less or equal");
+  run_test(&test_eq, "equals");
+  run_test(&test_mul_segments, "mul_segments");
+  run_test(&test_div_segments, "div_segments");
+  
   return 0;
 }
 
@@ -57,7 +67,7 @@ void run_test(bool (*func)(void), char* message) {
   printf("-----------test-output------------\n");
   bool test = (*func)();
   printf("\n----------------------------------\n");
-  printf("Result: %s\n", test ? "PASS" : "FAILUIRE");
+  printf("Result: %s\n", test ? "PASS" : "FAILURE");
   printf("==================================\n\n");
 }
 
@@ -247,6 +257,36 @@ bool test_sub_segments() {
   assert(&test, minor->data[4] == 0x0);
 
   return test;
+}
+
+bool test_mul_segments() {
+  return FALSE;
+}
+bool test_div_segments() {
+  return FALSE;
+}
+
+bool test_gt() {
+  return FALSE;
+}
+bool test_gte() {
+  return FALSE;
+}
+bool test_lt() {
+  return FALSE;
+}
+bool test_lte() {
+  return FALSE;
+}
+bool test_eq() {
+  return FALSE;
+}
+
+bool test_msb() {
+  return FALSE;
+}
+bool test_log2() {
+  return FALSE;
 }
 
 
