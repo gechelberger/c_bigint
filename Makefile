@@ -10,7 +10,7 @@ test: library test.c
 	$(CC) -o tests test.o -L./ -lbigmath -Wl,-rpath=./
 
 library: bigmath.c
-	$(CC) -c bigmath.c -I -shared -fpic -lm
+	$(CC) -c bigmath.c -I -shared -fpic -lm -O3
 	$(CC) -o libbigmath.so bigmath.o -lm -shared
 
 clean:

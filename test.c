@@ -19,6 +19,7 @@ int main() {
   run_test(&test_shr_segments, "shr_segments");
   run_test(&test_shl_segments, "shl_segments");
   run_test(&test_add_segments, "add_segments");
+  run_test(&test_sub_segments, "sub_segments");
   return 0;
 }
 
@@ -28,7 +29,7 @@ void run_test(bool (*func)(void), char* message) {
   printf("-----------test-output------------\n");
   bool test = (*func)();
   printf("\n----------------------------------\n");
-  printf("Result: %s\n", test ? "passed" : "failed");
+  printf("Result: %s\n", test ? "PASS" : "FAILUIRE");
   printf("==================================\n\n");
 }
 
@@ -100,7 +101,7 @@ bool test_shl_segments() {
   print_bigint_hex(for_printing);
   printf("\nExpecting: 0x8000000000000000 x 3\n");
 
-  printf("max shift (1,64) \n");
+  printf("max shift (2,63) \n");
   shl_segments(segments, size, 2);
   shl_segments(segments, size, 63);
   print_bigint_hex(for_printing);
@@ -178,6 +179,44 @@ bool test_add_segments() {
   free_bigint(base);
   free_bigint(incr);
   
+
+  return test;
+}
+
+bool test_sub_segments() {
+  bigint* major = get_ones(5);
+  bigint* minor = get_ones(5);
+  major->data[0] = 0;
+  minor->data[4] = 0;
+  
+  printf("   ");
+  print_bigint_hex(major);
+  printf("\n - ");
+  print_bigint_hex(minor);
+  int i;
+  printf("\n");
+  for(i=0; i < 5;i++) {
+    printf("----------------");
+  }
+  printf("---\n = ");
+
+  uint64_t* result = sub_segments(major->data, minor->data, 5);
+
+  print_bigint_hex(major);
+
+  bool test = TRUE;
+  assert(&test, major->data[0] == 0x1);
+  for(i = 1; i < 4; i++) {
+    assert(&test, major->data[i] == 0xFFFFFFFFFFFFFFFF);
+  }
+  assert(&test, major->data[4] == 0xFFFFFFFFFFFFFFFE);
+
+  assert(&test, result == major->data);
+
+  for(i = 0; i < 4; i++) {
+    assert(&test, minor->data[i] == 0xFFFFFFFFFFFFFFFF);
+  }
+  assert(&test, minor->data[4] == 0x0);
 
   return test;
 }
