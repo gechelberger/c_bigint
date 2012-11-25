@@ -44,7 +44,7 @@ void free_bigint(bigint* value) {
 ///
 
 uint64_t* shl_segments(uint64_t* dest, uint64_t length, byte offset) {
-  if(offset > sizeof(uint64_t) * 8) {
+  if(offset >= sizeof(uint64_t) * 8) {
     return NULL;
   }
 
@@ -59,7 +59,7 @@ uint64_t* shl_segments(uint64_t* dest, uint64_t length, byte offset) {
 }
 
 uint64_t* shr_segments(uint64_t* dest, uint64_t length, byte offset) {
-  if(offset > sizeof(uint64_t) * 8 || length == 0) {
+  if(offset >= sizeof(uint64_t) * 8 || length == 0) {
     return NULL;
   }
 
@@ -260,24 +260,25 @@ byte _log2(uint64_t segment) {
 ///
 ///
 
-void print_bigint(bigint* bigint) {
-  print_bigint_base(bigint, 10);
+inline char* bigint_to_new_str(bigint* value) {
+  return bigint_to_new_str_base(value, 10);
 }
 
-void print_bigint_base(bigint* bigint, byte base) {
+char* bigint_to_new_str_base(bigint* value, byte base) {
   if(base == 16) {
-    print_bigint_hex(bigint);
+    return bigint_to_new_str_hex(value);
   } else {
-    //print eulers bs
+    //TODO: eulers
+    return NULL;
   }
 }
 
-void print_bigint_hex(bigint* value) {
-  size_t size;
+char* bigint_to_new_str_hex(bigint* value) {
+ size_t size;
   char* buffer, *output;
   uint64_t temp, i, j;
   
-  size = sizeof(char) * value->length * sizeof(uint64_t) + 1;
+  size = sizeof(char) * value->length * sizeof(uint64_t) * 8 + 1;
   buffer = malloc(size);
   output = malloc(size);
   output[0] = '\0';
@@ -292,9 +293,33 @@ void print_bigint_hex(bigint* value) {
     //do we add spaces every qword?
   }
 
-  printf("%s", output);
   free(buffer);
-  free(output);
+
+  return output;
+}
+
+void print_bigint(bigint* value) {
+  char* output = bigint_to_new_str(value);
+  if(output != NULL) {
+    printf("%s", output);
+    free(output);
+  }
+}
+
+void print_bigint_base(bigint* value, byte base) {
+  char* output = bigint_to_new_str_base(value, base);
+  if(output != NULL) {
+    printf("%s", output);
+    free(output);
+  }
+}
+
+void print_bigint_hex(bigint* value) {
+  char* output = bigint_to_new_str_hex(value);
+  if(output != NULL) {
+    printf("%s", output);
+    free(output);
+  }
 }
 
 ///

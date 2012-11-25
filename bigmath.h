@@ -40,6 +40,10 @@ byte _log2(uint64_t segment);
 
 ///
 
+char* bigint_to_new_str(bigint* bigint);
+char* bigint_to_new_str_base(bigint* bigint, byte base);
+char* bigint_to_new_str_hex(bigint* bigint);
+
 void print_bigint(bigint* bigint);
 void print_bigint_base(bigint* bigint, byte base);
 void print_bigint_hex(bigint* bigint);
