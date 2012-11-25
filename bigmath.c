@@ -198,6 +198,23 @@ uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length) {
   return NULL;
 }
 
+uint64_t pow_segments(uint64_t* dest, uint64_t power, uint64_t length) {
+  if(power == 0) {
+    memset(dest, 0, length * sizeof(uint64_t));
+    dest[0] = 1;
+  } else {
+    uint64_t scratch = malloc(length * sizeof(uint64_t));
+    memcpy(scratch, dest);
+
+    int i;
+    for(i = 1; i < power; i++) {
+      mul_segments(dest, scratch, length);
+    }
+    free(scratch);
+  }
+  return dest;
+}
+
 bool gt(uint64_t* seg1, uint64_t* seg2, uint64_t length) {
   return _gt(seg1, seg2, length, FALSE);
 }

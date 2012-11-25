@@ -32,15 +32,13 @@ uint64_t* sub_segments(uint64_t* dest, uint64_t* decr, uint64_t length);
 uint64_t* mul_segments(uint64_t* dest, uint64_t* scale, uint64_t length);
 uint64_t* div_segments(uint64_t* dest, uint64_t* divisor, uint64_t length);
 uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length);
-//TODO: perhaps have div_segments return mod instead of returning dest?
 
+uint64_t* pow_segments(uint64_t* dest, uint64_t power, uint64_t length);
 
 bool eq(uint64_t* seg1, uint64_t* seg2, uint64_t length);
-
 bool gt(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 bool gte(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 bool _gt(uint64_t* seg1, uint64_t* seg2, uint64_t length, bool or_equal);
-
 bool lt(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 bool lte(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 bool _lt(uint64_t* seg1, uint64_t* seg2, uint64_t length, bool or_equal);
