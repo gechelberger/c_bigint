@@ -8,6 +8,34 @@ bool test_shl_segments(void);
 bool test_add_segments(void);
 bool test_sub_segments(void);
 
+/*
+//TODO:
+bool test_mul_segments(void);
+bool test_div_segments(void);
+
+bool test_gt(void);
+bool test_gte(void);
+bool test_lt(void);
+bool test_lte(void);
+
+bool test_msb(void);
+bool test_log2(void);
+
+//
+
+bool test_shl(void);
+bool test_shr(void);
+bool test_add(void);
+bool test_sub(void);
+bool test_mul(void);
+bool test_mult_nat(void);
+bool test_div(void);
+bool test_div_nat(void);
+
+//END TODO
+*/
+
+
 bigint* get_ones(uint64_t size);
 bigint* get_zeros(uint64_t size);
 bigint* get_fill(uint64_t size, byte fill);
