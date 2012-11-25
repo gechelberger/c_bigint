@@ -64,7 +64,7 @@ uint64_t* shr_segments(uint64_t* dest, uint64_t length, byte offset) {
   }
 
   const byte carry_shift = sizeof(uint64_t) * 8 - offset;
-  uint64_t i, orig, overflow = 0;
+  uint64_t i;
   for(i = 0; i < length-1; i++) {
     dest[i] = (dest[i] >> offset) | (dest[i+1] << carry_shift);
   }
@@ -147,7 +147,7 @@ uint64_t* div_segments(uint64_t* dest, uint64_t *divisor, uint64_t length) {
   int diff;
   if(msb_divisor > msb_dest) {
     memset(dest, 0, length);
-    return;
+    return dest;
   } else if(msb_divisor < msb_dest) {
     diff = msb_dest - msb_divisor;
     while(diff > 32) {
@@ -272,8 +272,29 @@ void print_bigint_base(bigint* bigint, byte base) {
   }
 }
 
-void print_bigint_hex(bigint* bigint) {
-  //print hex
+void print_bigint_hex(bigint* value) {
+  size_t size;
+  char* buffer, *output;
+  uint64_t temp, i, j;
+  
+  size = sizeof(char) * value->length * sizeof(uint64_t) + 1;
+  buffer = malloc(size);
+  output = malloc(size);
+  output[0] = '\0';
+  
+  for(i = 0; i < value->length; i++) {
+    temp = value->data[i];
+    for(j = 0; j < 2*sizeof(uint64_t); j++) {
+      strcpy(buffer, output);
+      sprintf(output, "%x%s", (byte) temp & 0xf, buffer);
+      temp >>= 4;
+    }
+    //do we add spaces every qword?
+  }
+
+  printf("%s", output);
+  free(buffer);
+  free(output);
 }
 
 ///
@@ -330,7 +351,7 @@ bigint* mul_bigint_nat(bigint* dest, uint64_t scale) {
   bigint* multiplier;
   uint64_t* temp = malloc(sizeof(uint64_t)); //later 
   multiplier = create_bigint(temp, 1);
-  mult_bigint(dest, multiplier);
+  mul_bigint(dest, multiplier);
   free_bigint(multiplier);
   return dest;
 }
