@@ -2,6 +2,7 @@
 
 void run_test(bool (*func)(void), char*);
 
+bool test_print(void);
 bool test_print_hex(void);
 bool test_shr_segments(void);
 bool test_shl_segments(void);
@@ -57,6 +58,7 @@ int main() {
   run_test(&test_eq, "equals");
   run_test(&test_mul_segments, "mul_segments");
   run_test(&test_div_segments, "div_segments");
+  run_test(&test_print, "print_decimal");
   
   return 0;
 }
@@ -70,6 +72,27 @@ void run_test(bool (*func)(void), char* message) {
   printf("Result: %s\n", test ? "PASS" : "FAILURE");
   printf("==================================\n\n");
 }
+
+bool test_print() {
+  bool test = TRUE;
+  bigint* val = get_zeros(5);
+  val->data[0] = 15;
+
+  char* repr = bigint_to_new_str_base(val, 10);
+  printf("%s\n", repr);
+
+  assert(&test, strcmp(repr, "15") == 0);
+  free(repr);
+  free(val);
+
+  val = get_ones(1000);
+  repr = bigint_to_new_str_base(val, 10);
+  printf("%s\n", repr);
+  free(repr);
+  free(val);
+  return test;
+}
+
 
 bool test_shr_segments() {
   static int size = 5;
@@ -260,7 +283,35 @@ bool test_sub_segments() {
 }
 
 bool test_mul_segments() {
-  return FALSE;
+  bool test = TRUE;
+  int i;
+  bigint* ones_dest  = get_ones(6);
+  bigint* ones_scale = get_ones(6);
+  for(i = 2; i < 6; i++) {
+    ones_dest->data[i] = 0;
+    ones_scale->data[i] = 0;
+  }
+  
+  print_bigint_hex(ones_dest); 
+  printf("\n");
+  print_bigint_hex(ones_scale);
+  printf("\n");
+
+  mul_segments(ones_dest->data, ones_scale->data, 6);
+
+  assert(&test, ones_dest->data[0] == 0x1);
+  assert(&test, ones_dest->data[1] == 0x0);
+  assert(&test, ones_dest->data[2] == 0xFFFFFFFFFFFFFFFE);
+  assert(&test, ones_dest->data[3] == 0xFFFFFFFFFFFFFFFF);
+  assert(&test, ones_dest->data[4] == 0x0);
+  assert(&test, ones_dest->data[5] == 0x0);
+
+  print_bigint_hex(ones_dest);
+
+  free(ones_dest);
+  free(ones_scale);
+
+  return test;
 }
 bool test_div_segments() {
   return FALSE;
