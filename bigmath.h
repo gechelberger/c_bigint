@@ -15,6 +15,11 @@ typedef struct {
   uint64_t length;
 } bigint;
 
+typedef struct {
+  struct eulers_node* prev;
+  char value;
+} eulers_node;
+
 bigint* create_bigint(uint64_t* segments, uint64_t length);
 bigint* alloc_bigint(uint64_t digits);
 bigint* alloc_bigint_base(uint64_t digits, byte base);
@@ -47,6 +52,8 @@ uint64_t _msb(uint64_t* segments, uint64_t length);
 byte _log2(uint64_t segment);
 
 ///
+
+char* eulers(bigint* bigint, byte base, const char* digit_map);
 
 char* bigint_to_new_str(bigint* bigint);
 char* bigint_to_new_str_base(bigint* bigint, byte base);

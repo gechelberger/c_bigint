@@ -138,6 +138,30 @@ uint64_t* sub_segments(uint64_t* dest, uint64_t* decr, uint64_t length) {
 	"r" (preserve_carry_bool)
       : "r10", "r11", "r12", "memory"
 		   );
+  //should output preserve_carry_bool and detect overflow?
+  return dest;
+}
+
+uint64_t* mul_segments(uint64_t* dest, uint64_t *scale, uint64_t length) {
+  size_t scratch_size = sizeof(uint64_t) * length;
+  uint64_t* scratch = malloc(scratch_size);
+  memset(scratch, 0, scratch_size);
+
+  int i, j;
+  uint64_t multiplier;
+  for(i = 0; i < length; i++) {
+    multiplier = scale[i];
+    for(j=0; j < sizeof(uint64_t) * 8; j++) {
+      if(multiplier & 0x1) {
+	add_segments(scratch, dest, length);
+      }
+      shl_segments(dest, length, 1);
+      multiplier >>= 1;
+    }
+  }
+
+  memcpy(dest, scratch, scratch_size);
+  free(scratch);
   return dest;
 }
 
@@ -198,13 +222,13 @@ uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length) {
   return NULL;
 }
 
-uint64_t pow_segments(uint64_t* dest, uint64_t power, uint64_t length) {
+uint64_t* pow_segments(uint64_t* dest, uint64_t power, uint64_t length) {
   if(power == 0) {
     memset(dest, 0, length * sizeof(uint64_t));
     dest[0] = 1;
   } else {
-    uint64_t scratch = malloc(length * sizeof(uint64_t));
-    memcpy(scratch, dest);
+    uint64_t *scratch = malloc(length * sizeof(uint64_t));
+    memcpy(scratch, dest, length * sizeof(uint64_t));
 
     int i;
     for(i = 1; i < power; i++) {
@@ -299,11 +323,17 @@ inline char* bigint_to_new_str(bigint* value) {
 }
 
 char* bigint_to_new_str_base(bigint* value, byte base) {
+  static const char decimal_alpha[] = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z'
+  }; //eulers will break for base > 36
+
   if(base == 16) {
     return bigint_to_new_str_hex(value);
   } else {
-    //TODO: eulers
-    return NULL;
+    return eulers(value, base, decimal_alpha);
   }
 }
 
@@ -458,4 +488,62 @@ bigint* div_bigint(bigint* dest, bigint* divisor) {
   //divide
 
   return NULL;
+}
+
+
+char* eulers(bigint* value, byte base, const char* digit_map) {
+  int bitsper = sizeof(uint64_t) * 8,
+    bits = value->length * bitsper,
+    i;
+
+  size_t scratch_size = bits * sizeof(byte);
+  byte* scratch = malloc(scratch_size);
+  byte* scratch_prime = malloc(scratch_size);
+
+  for(i = 0; i < bits; i++) {
+    scratch[i] = (value->data[i/bitsper] >> (i % bitsper)) & 0x1;
+  }
+
+  eulers_node *curr = malloc(sizeof(eulers_node)), *temp;
+  curr->prev = NULL;
+  curr->value = '\0';
+
+  int length = 1;
+  byte running = TRUE;
+  while(running) {
+    byte rem = 0;
+    running = FALSE;
+    for(i = bits-1; i >= 0; i--) {
+      rem = rem * 2 + scratch[i];
+      if(rem >= base) {
+	scratch_prime[i] = 1;
+	rem -= base;
+      } else {
+	scratch_prime[i] = 0;
+      }
+      running = running || scratch_prime[i];
+      //?
+    }
+
+    temp = malloc(sizeof(eulers_node));
+    temp->prev = curr;
+    temp->value = digit_map[rem];
+
+    curr = temp;
+
+    memcpy(scratch, scratch_prime, scratch_size);
+    length++;
+  }
+  
+  char* output = malloc(sizeof(char) * length);
+  for(i = 0; i < length && curr != NULL; i++) {
+    output[i] = curr->value;
+    temp = curr;
+    curr = curr->prev;
+    free(temp);
+  }
+  
+  free(scratch);
+  free(scratch_prime);
+  return output;
 }
