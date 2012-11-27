@@ -147,8 +147,10 @@ uint64_t* mul_segments(uint64_t* dest, uint64_t *scale, uint64_t length) {
   uint64_t* scratch = malloc(scratch_size);
   memset(scratch, 0, scratch_size);
 
+  uint64_t msb = _msb(dest, length);
+
   int i, j;
-  uint64_t multiplier;
+  uint64_t multiplier, bits=0;
   for(i = 0; i < length; i++) {
     multiplier = scale[i];
     for(j=0; j < sizeof(uint64_t) * 8; j++) {
@@ -157,6 +159,10 @@ uint64_t* mul_segments(uint64_t* dest, uint64_t *scale, uint64_t length) {
       }
       shl_segments(dest, length, 1);
       multiplier >>= 1;
+      bits++;
+    }
+    if(bits > msb) {
+      break;
     }
   }
 
@@ -222,7 +228,7 @@ uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length) {
   return NULL;
 }
 
-uint64_t* pow_segments(uint64_t* dest, uint64_t power, uint64_t length) {
+/*uint64_t* pow_segments(uint64_t* dest, uint64_t power, uint64_t length) {
   if(power == 0) {
     memset(dest, 0, length * sizeof(uint64_t));
     dest[0] = 1;
@@ -237,7 +243,40 @@ uint64_t* pow_segments(uint64_t* dest, uint64_t power, uint64_t length) {
     free(scratch);
   }
   return dest;
+  }*/
+
+uint64_t* pow_segments(uint64_t *dest, uint64_t pow, uint64_t len) {
+  size_t scratch_size = sizeof(uint64_t) * len;
+  if(pow == 0) {
+    memset(dest, 0, scratch_size);
+    dest[0] = 1;
+    return dest;
+  } else if(pow == 1) {
+    return dest;
+  }
+  uint64_t* scratch_square = malloc(scratch_size);
+
+  uint64_t* scratch_factor = malloc(scratch_size);
+  memcpy(scratch_factor, dest, scratch_size);
+
+  uint64_t* scratch_dest = malloc(scratch_size);
+  scratch_dest[0] = 1;
+
+  while(pow) {
+    if(pow & 0x1) {
+      mul_segments(scratch_dest, scratch_factor, len);
+    }
+    memcpy(scratch_square, scratch_factor, scratch_size);
+    mul_segments(scratch_factor, scratch_square, len);
+    pow >>=1;
+  }
+  free(scratch_square);
+  free(scratch_factor);
+  memcpy(dest, scratch_dest, scratch_size);
+  free(scratch_dest);
+  return dest;
 }
+
 
 bool gt(uint64_t* seg1, uint64_t* seg2, uint64_t length) {
   return _gt(seg1, seg2, length, FALSE);
@@ -547,3 +586,4 @@ char* eulers(bigint* value, byte base, const char* digit_map) {
   free(scratch_prime);
   return output;
 }
+

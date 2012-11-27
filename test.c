@@ -25,6 +25,8 @@ bool test_div_nat(void);
 bool test_mul_segments(void);
 bool test_div_segments(void);
 
+bool test_pow(void);
+
 bool test_gt(void);
 bool test_gte(void);
 bool test_lt(void);
@@ -44,6 +46,7 @@ bigint* get_fill(uint64_t size, byte fill);
 void assert(bool* accum, bool test);
 
 int main() {
+  setbuf(stdout, NULL);
   run_test(&test_print_hex, "hex_print");
   run_test(&test_shr_segments, "shr_segments");
   run_test(&test_shl_segments, "shl_segments");
@@ -59,7 +62,7 @@ int main() {
   run_test(&test_mul_segments, "mul_segments");
   run_test(&test_div_segments, "div_segments");
   run_test(&test_print, "print_decimal");
-  
+  run_test(&test_pow, "pow_segments");
   return 0;
 }
 
@@ -340,6 +343,44 @@ bool test_log2() {
   return FALSE;
 }
 
+bool test_pow() {
+  bigint* raise = get_zeros(1);
+  raise->data[0] = 0xf;
+
+  pow_segments(raise->data, 0xf, 1);
+
+  bool test = TRUE;
+  assert(&test, raise->data[0] == 0x0613b62c597707ef);
+
+  free(raise);
+  raise = get_zeros(32);
+  raise->data[0] = 0xff;
+  pow_segments(raise->data, 0xff, 32);
+
+  print_bigint_hex(raise);
+  char* output = bigint_to_new_str_hex(raise);
+  printf("\n0xff ^ 0xff = %s\n0xfff ^ 0xfff", output);
+  assert(&test, strcmp(output, "005e5c8b0eb95ab08f9d37ef127fc01bd0e33de52647528396d78d5f8da31989e67814f6bba1fb0f0207010ff5f2347b19d5f6598fc91bf5a88f77daa3d7b382fec484f3d205c06a34445384c0e7ab0d883788c68c012cb433055edda746a48409444ea91147273b79fc3eabb70eca552af650c234bb01ed404427f17cdddd71d08e39ef9c3982e3ce44e670456aa8154c1fdbd9c35947f494636a425c69bf89e9c75ad3b7a0a559af0f5da9947c8deba64417310713b23e7ef4de50bb2a3e90bc2ac3da5201cca8d6e5dfea887c4f7a4e92175d9f88bd2779b57f9eb35be7528f965a06da0ac41dcb3a34f1d8ab7d8fee620a94faa42c395997756b007ffeff") == 0);
+  free(raise);
+  free(output);
+
+  raise = get_zeros(768);
+  raise->data[0] = 0xfff;
+  pow_segments(raise->data, 0xfff, 768);
+  printf(" = ");
+  print_bigint_hex(raise);
+  free(raise);
+
+  /*  raise = get_zeros(16384);
+  raise->data[0] = 0x1fff;
+  printf("\n0x1fff ^ 0x1fff");
+  pow_segments(raise->data, 0x1fff, 16384);
+  printf(" = ");
+  print_bigint_hex(raise);
+  free(raise);*/
+
+  return test;
+}
 
 ///
 ///
