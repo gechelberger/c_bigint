@@ -175,8 +175,11 @@ uint64_t* div_segments(uint64_t* dest, uint64_t *divisor, uint64_t length) {
   uint64_t msb_dest = _msb(dest, length);
   uint64_t msb_divisor = _msb(divisor, length);
   int diff;
+
+  size_t scratch_size = length * sizeof(uint64_t);
+
   if(msb_divisor > msb_dest) {
-    memset(dest, 0, length);
+    memset(dest, 0, scratch_size);
     return dest;
   } else if(msb_divisor < msb_dest) {
     diff = msb_dest - msb_divisor;
@@ -188,62 +191,74 @@ uint64_t* div_segments(uint64_t* dest, uint64_t *divisor, uint64_t length) {
     //print div and dest to assure alignment
   } //else already aligned
 
-  uint64_t iterations = msb_dest - msb_divisor; //reset
+  uint64_t iterations = msb_dest - msb_divisor + 1; //reset
 
-  size_t scratch_size = length * sizeof(uint64_t);
   uint64_t *scratch = malloc(scratch_size);
   memcpy(scratch, dest, scratch_size);
   memset(dest, 0, scratch_size);
+
   int i;
   for(i = 0; i < iterations; i++) {
+    shl_segments(dest, length, 1);
     if(gte(scratch, divisor, length)) {
       sub_segments(scratch, divisor, length);
-      dest[0] = dest[0] | 1;
+      dest[0] |= 0x1;
     }
-    shl_segments(dest, length, 1);
     shl_segments(scratch, length, 1);
   }
-  
+  //shr_segments(scratch, length, iterations);
+
+  //bigint* printing = create_bigint(scratch, length);
+  //print_bigint_hex(printing);
+  //free_bigint(printing);
+
   free(scratch);
 
   return dest;
-    
-  /**
-     //align MSB of N and D
-     t = N - D;
-     if t >= 0 then Q |= 0x1 and N = t
-     N <<= 1
-     Q <<= 1
-     goto t = N-D
-   */  
 }
 
 uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length) {
+  uint64_t* remainder;
 
-  //scratch for divisor
-  //scratch for mod
+  uint64_t msb_dest = _msb(dest, length);
+  uint64_t msb_divisor = _msb(divisor, length);
+  int diff;
 
-  //put mod in seg2
+  size_t scratch_size = length * sizeof(uint64_t);
 
-  return NULL;
-}
-
-/*uint64_t* pow_segments(uint64_t* dest, uint64_t power, uint64_t length) {
-  if(power == 0) {
-    memset(dest, 0, length * sizeof(uint64_t));
-    dest[0] = 1;
-  } else {
-    uint64_t *scratch = malloc(length * sizeof(uint64_t));
-    memcpy(scratch, dest, length * sizeof(uint64_t));
-
-    int i;
-    for(i = 1; i < power; i++) {
-      mul_segments(dest, scratch, length);
+  if(msb_divisor > msb_dest) {
+    remainder = malloc(scratch_size);
+    memcpy(remainder, dest, scratch_size);
+    memset(dest, 0, scratch_size);
+    return rem;
+  } else if(msb_divisor < msb_dest) {
+    diff = msb_dest - msb_divisor;
+    while(diff > 32) {
+      shl_segments(divisor, length, 32);
+      diff -= 32;
     }
-    free(scratch);
+    shl_segments(divisor, length, diff);
+  } //else already aligned
+
+  uint64_t iterations = msb_dest - msb_divisor + 1;
+
+  remainder = malloc(scratch_size);
+  memcpy(remainder, dest, scratch_size);
+  memset(dest, 0, scratch_size);
+
+  int i;
+  for(i = 0; i < iterations; i++) {
+    shl_segments(dest, length, 1);
+    if(gte(remainder, divisor, length)) {
+      sub_segments(remainder, divisor, length);
+      dest[0] |= 0x1;
+    }
+    shl_segments(remainder, length, 1);
   }
-  return dest;
-  }*/
+  shr_segments(remainder, length, iterations);
+
+  return remainder;
+}
 
 uint64_t* pow_segments(uint64_t *dest, uint64_t pow, uint64_t len) {
   size_t scratch_size = sizeof(uint64_t) * len;
@@ -289,9 +304,9 @@ bool gte(uint64_t* seg1, uint64_t* seg2, uint64_t length) {
 bool _gt(uint64_t* seg1, uint64_t* seg2, uint64_t length, bool or_equal) {
   int i;
   for(i = length-1; i >= 0; i--) {
-    if(seg1[i] == 0 && seg2[i] == 0)
-      continue;
-    return or_equal ? seg1[i] > seg2[i] : seg1[i] >= seg2[i];
+    if(seg1[i] || seg2[i]) {
+      return or_equal ? seg1[i] >= seg2[i] : seg1[i] > seg2[i];
+    }
   }
   return or_equal;
 }
@@ -309,7 +324,7 @@ bool _lt(uint64_t* seg1, uint64_t* seg2, uint64_t length, bool or_equal) {
   for(i = length-1; i >= 0; i--) {
     if(seg1[i] == 0 && seg2[i] == 0)
       continue;
-    return or_equal ? seg1[i] < seg2[i] : seg1[i] <= seg2[i];
+    return or_equal ? seg1[i] <= seg2[i] : seg1[i] < seg2[i];
   }
   return or_equal;
 }
@@ -325,11 +340,9 @@ bool eq(uint64_t* seg1, uint64_t* seg2, uint64_t length) {
 uint64_t _msb(uint64_t* segments, uint64_t length) {
   int i = length - 1;
   byte segment_size_bits = sizeof(uint64_t) * 8;
-  uint64_t value;
   for(; i >= 0; i--) {
-    value = _log2(segments[i]);
-    if(value) {
-      return (i * segment_size_bits) + value;
+    if(segments[i]) {
+      return (i * segment_size_bits) + _log2(segments[i]);
     }
   }
   return 0;
@@ -343,7 +356,7 @@ byte _log2(uint64_t segment) {
     1, 2, 4, 8, 16, 32
   };
   int i;
-  register uint64_t l2;
+  register uint64_t l2 = 0;
   for(i = 5; i >= 0; i--) {
     if(segment & mask[i]) {
       segment >>= offset[i];
