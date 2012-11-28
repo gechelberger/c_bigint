@@ -20,7 +20,6 @@ bool test_div(void);
 bool test_div_nat(void);
 */
 
-
 //TODO:
 bool test_mul_segments(void);
 bool test_div_segments(void);
@@ -52,17 +51,19 @@ int main() {
   run_test(&test_shl_segments, "shl_segments");
   run_test(&test_add_segments, "add_segments");
   run_test(&test_sub_segments, "sub_segments");
-  run_test(&test_msb, "most significant bit");
-  run_test(&test_log2, "integer log2 of uint64_t");
+
   run_test(&test_gt, "greater than");
-  run_test(&test_gte, "greater or equal");
   run_test(&test_lt, "less than");
   run_test(&test_lte, "less or equal");
   run_test(&test_eq, "equals");
   run_test(&test_mul_segments, "mul_segments");
   run_test(&test_div_segments, "div_segments");
-  run_test(&test_print, "print_decimal");
-  run_test(&test_pow, "pow_segments");
+  run_test(&test_gte, "greater or equal");
+
+  run_test(&test_log2, "integer log2 of uint64_t");
+  run_test(&test_msb, "most significant bit");
+  //run_test(&test_print, "print_decimal");
+  //run_test(&test_pow, "pow_segments");
   return 0;
 }
 
@@ -317,6 +318,26 @@ bool test_mul_segments() {
   return test;
 }
 bool test_div_segments() {
+  uint64_t* segments = malloc(sizeof(uint64_t) * 4);
+  uint64_t* divisor = malloc(sizeof(uint64_t) * 4);
+  memset(segments, 0, sizeof(uint64_t) * 4);
+  memset(divisor, 0, sizeof(uint64_t) * 4);
+  int i;
+
+  segments[0] = 96;
+  divisor[0] = 15;
+
+  printf("segments l = %lu, div l = %lu\n", _msb(segments, 3), _msb(divisor, 3));
+
+  div_segments(segments, divisor, 4);
+  printf("\n");
+
+  bigint* printing = create_bigint(segments, 4);
+  print_bigint_hex(printing);
+
+  free_bigint(printing);
+  free(divisor);
+  
   return FALSE;
 }
 
@@ -324,7 +345,27 @@ bool test_gt() {
   return FALSE;
 }
 bool test_gte() {
-  return FALSE;
+  uint64_t* one = malloc(sizeof(uint64_t) * 3);
+  uint64_t* two = malloc(sizeof(uint64_t) * 3);
+  memset(one, 0, sizeof(uint64_t) * 3);
+  memset(two, 0, sizeof(uint64_t) * 3);
+
+  one[0] = 3000;
+  two[0] = 2000;
+  bool test = _gt(one, two, 3, TRUE);
+  printf("3000 >= 2000: %d\n", test);
+
+  one[0] = 2000;
+  test = test && gte(one, two, 3);
+  printf("2000 >= 2000: %d\n", test);
+
+  one[0] = 1000;
+  test = test && !gte(one, two, 3);
+  printf("1000 >= 2000: %d\n", test); 
+
+  free(one);
+  free(two);
+  return test;
 }
 bool test_lt() {
   return FALSE;
@@ -337,9 +378,21 @@ bool test_eq() {
 }
 
 bool test_msb() {
+
+  bigint* test = get_zeros(10);
+  test->data[0] = 0x8000;
+  printf("%lu\n", _msb(test->data, test->length));
+
+  free(test);
   return FALSE;
 }
 bool test_log2() {
+  uint64_t zero = 0;
+  printf("log2(0) = NAN = %d\n", _log2(zero));
+  uint64_t one = 1;
+  printf("log2(1) = 0 = %d\n", _log2(one));
+  uint64_t two = 2;
+  printf("log2(2) = 1 = %d\n", _log2(two));
   return FALSE;
 }
 
