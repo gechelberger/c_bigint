@@ -39,7 +39,6 @@ uint64_t* div_segments(uint64_t* dest, uint64_t* divisor, uint64_t length);
 uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length);
 
 uint64_t* pow_segments(uint64_t* dest, uint64_t power, uint64_t length);
-//uint64_t* pow_segments_bin(uint64_t* dest, uint64_t power, uint64_t length);
 
 bool eq(uint64_t* seg1, uint64_t* seg2, uint64_t length);
 bool gt(uint64_t* seg1, uint64_t* seg2, uint64_t length);

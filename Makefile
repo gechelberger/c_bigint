@@ -6,7 +6,7 @@ TESTFLAGS = -L./ -Wl,-rpath=./
 LIBFLAGS = -fPIC -shared -lm
 
 test: library test.c
-	$(CC) -c test.c -lbigmath
+	$(CC) -c test.c -lbigmath -O3
 	$(CC) -o tests test.o -L./ -lbigmath -Wl,-rpath=./
 
 library: bigmath.c
