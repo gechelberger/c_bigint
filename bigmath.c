@@ -43,7 +43,15 @@ void free_bigint(bigint* value) {
 ///
 ///
 
-uint64_t* shl_segments(uint64_t* dest, uint64_t length, byte offset) {
+uint64_t* shl_segments(uint64_t* dest, uint64_t length, uint64_t offset) {
+  while(offset > 63) {
+    _shl_segments(dest, length, 63);
+    offset -= 63;
+  }
+  return _shl_segments(dest, length, offset);
+}
+
+uint64_t* _shl_segments(uint64_t* dest, uint64_t length, byte offset) {
   if(offset >= sizeof(uint64_t) * 8) {
     return NULL;
   }
@@ -58,7 +66,15 @@ uint64_t* shl_segments(uint64_t* dest, uint64_t length, byte offset) {
   return dest;
 }
 
-uint64_t* shr_segments(uint64_t* dest, uint64_t length, byte offset) {
+uint64_t* shr_segments(uint64_t* dest, uint64_t length, uint64_t offset) {
+  while(offset > 63) {
+    _shr_segments(dest, length, 63);
+    offset -= 63;
+  }
+  return _shr_segments(dest, length, offset);
+}
+
+uint64_t* _shr_segments(uint64_t* dest, uint64_t length, byte offset) {
   if(offset >= sizeof(uint64_t) * 8 || length == 0) {
     return NULL;
   }
@@ -183,22 +199,15 @@ uint64_t* div_segments(uint64_t* dest, uint64_t *divisor, uint64_t length) {
     return dest;
   } else if(msb_divisor < msb_dest) {
     diff = msb_dest - msb_divisor;
-    while(diff > 32) {
-      shl_segments(divisor, length, 32);
-      diff -= 32;
-    }
     shl_segments(divisor, length, diff);
-    //print div and dest to assure alignment
   } //else already aligned
-
-  uint64_t iterations = msb_dest - msb_divisor + 1; //reset
 
   uint64_t *scratch = malloc(scratch_size);
   memcpy(scratch, dest, scratch_size);
   memset(dest, 0, scratch_size);
 
   int i;
-  for(i = 0; i < iterations; i++) {
+  for(i = 0; i <= diff; i++) {
     shl_segments(dest, length, 1);
     if(gte(scratch, divisor, length)) {
       sub_segments(scratch, divisor, length);
@@ -206,11 +215,6 @@ uint64_t* div_segments(uint64_t* dest, uint64_t *divisor, uint64_t length) {
     }
     shl_segments(scratch, length, 1);
   }
-  //shr_segments(scratch, length, iterations);
-
-  //bigint* printing = create_bigint(scratch, length);
-  //print_bigint_hex(printing);
-  //free_bigint(printing);
 
   free(scratch);
 
@@ -233,21 +237,15 @@ uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length) {
     return rem;
   } else if(msb_divisor < msb_dest) {
     diff = msb_dest - msb_divisor;
-    while(diff > 32) {
-      shl_segments(divisor, length, 32);
-      diff -= 32;
-    }
     shl_segments(divisor, length, diff);
   } //else already aligned
-
-  uint64_t iterations = msb_dest - msb_divisor + 1;
 
   remainder = malloc(scratch_size);
   memcpy(remainder, dest, scratch_size);
   memset(dest, 0, scratch_size);
 
   int i;
-  for(i = 0; i < iterations; i++) {
+  for(i = 0; i <= diff; i++) {
     shl_segments(dest, length, 1);
     if(gte(remainder, divisor, length)) {
       sub_segments(remainder, divisor, length);
@@ -255,7 +253,7 @@ uint64_t* div_segments_mod(uint64_t* dest, uint64_t* divisor, uint64_t length) {
     }
     shl_segments(remainder, length, 1);
   }
-  shr_segments(remainder, length, iterations);
+  shr_segments(remainder, length, diff+1);
 
   return remainder;
 }

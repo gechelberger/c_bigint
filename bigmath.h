@@ -30,8 +30,10 @@ void free_bigint(bigint* bigint);
 //uint64_t* not_segments(uint64_t* dest, uint64_t length);
 //xor_segments?
 
-uint64_t* shl_segments(uint64_t* dest, uint64_t length, byte offset);
-uint64_t* shr_segments(uint64_t* dest, uint64_t length, byte offset);
+uint64_t* shl_segments(uint64_t* dest, uint64_t length, uint64_t offset);
+uint64_t* _shl_segments(uint64_t* dest, uint64_t length, byte offset);
+uint64_t* shr_segments(uint64_t* dest, uint64_t length, uint64_t offset);
+uint64_t* _shr_segments(uint64_t* dest, uint64_t length, byte offset);
 uint64_t* add_segments(uint64_t* dest, uint64_t* incr, uint64_t length);
 uint64_t* sub_segments(uint64_t* dest, uint64_t* decr, uint64_t length);
 uint64_t* mul_segments(uint64_t* dest, uint64_t* scale, uint64_t length);
